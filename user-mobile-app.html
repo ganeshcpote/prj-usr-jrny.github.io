@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruePass - User Mobile App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #000;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: relative;
+        }
+
+        .verification-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            border: 2px solid white;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-status {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ff4444;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .dashboard-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .card-status.verified {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            margin: 0 20px 20px;
+            border-radius: 16px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 10px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .quick-action:active {
+            background: #f5f5f5;
+        }
+
+        .quick-action-icon {
+            font-size: 28px;
+        }
+
+        .quick-action-label {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Detail Pages */
+        .detail-page {
+            flex: 1;
+            background: #f5f5f5;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .back-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .page-content {
+            padding: 20px;
+        }
+
+        /* Face Profile Styles */
+        .face-profile-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .face-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .face-confidence-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .face-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .face-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .face-id {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .face-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .face-metric {
+            text-align: center;
+        }
+
+        .face-metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .face-metric-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Document Styles */
+        .document-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .document-icon {
+            font-size: 32px;
+        }
+
+        .document-details {
+            flex: 1;
+        }
+
+        .document-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .document-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .document-status {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .document-status.verified {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        /* Location History */
+        .location-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .location-icon {
+            font-size: 32px;
+        }
+
+        .location-details {
+            flex: 1;
+        }
+
+        .location-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .location-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .location-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Verification Status */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .status-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .status-value {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* Message Toast */
+        .message {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #4CAF50;
+        }
+
+        .message.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Face Scan Styles */
+        .camera-container {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 300px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #333, #555);
+        }
+
+        .camera-placeholder {
+            text-align: center;
+            color: white;
+        }
+
+        .camera-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .camera-placeholder h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .camera-placeholder p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .face-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .face-frame {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #4CAF50;
+            border-radius: 50%;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .face-instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .instruction-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            font-size: 12px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .instruction-step.active {
+            opacity: 1;
+        }
+
+        .step-icon {
+            font-size: 20px;
+        }
+
+        .scan-progress {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .scan-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .scan-controls .btn {
+            flex: 1;
+        }
+
+        .scan-results {
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .result-card.success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .result-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .result-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .result-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .metric-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Document Upload Styles */
+        .upload-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .upload-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .document-types {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .doc-type-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .doc-type-card:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .doc-type-card.selected {
+            border-color: #667eea;
+            background: #e8f0ff;
+        }
+
+        .doc-type-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .doc-type-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-placeholder {
+            color: #666;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-placeholder h4 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .upload-placeholder p {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .upload-hint {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .upload-progress {
+            margin-top: 15px;
+        }
+
+        .document-preview {
+            text-align: center;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .preview-actions .btn {
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .upload-instructions {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .upload-instructions h4 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .upload-instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .upload-instructions li {
+            padding: 5px 0;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .upload-instructions li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span id="time">03:21 PM</span>
+                <span>TruePass</span>
+                <span>100%</span>
+            </div>
+
+            <!-- App Content -->
+            <div class="app-content">
+                <!-- Main Dashboard -->
+                <div id="main-screen">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <div class="profile-avatar-container">
+                            <div class="profile-avatar">
+                                <span>👤</span>
+                                <div class="verification-badge">✓</div>
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-name">Rahul Sharma</div>
+                                <div class="profile-status">Verified User</div>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="action-btn" onclick="showNotifications()">
+                                <span class="notification-badge">3</span>
+                                🔔
+                            </button>
+                            <button class="action-btn" onclick="showSettings()">⚙️</button>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Grid -->
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" onclick="showPage('face-profile')">
+                            <div class="card-status verified">✓</div>
+                            <div class="card-icon">👤</div>
+                            <div class="card-title">Face Profile</div>
+                            <div class="card-description">Your biometric identity is verified and ready</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="showPage('documents')">
+                            <div class="card-status verified">✓</div>
+                            <div class="card-icon">📄</div>
+                            <div class="card-title">Documents</div>
+                            <div class="card-description">2 verified documents linked to your profile</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="showPage('verification')">
+                            <div class="card-status verified">✓</div>
+                            <div class="card-icon">✅</div>
+                            <div class="card-title">Verification</div>
+                            <div class="card-description">100% verified - ready for rentals</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="showPage('history')">
+                            <div class="card-icon">📍</div>
+                            <div class="card-title">Scan History</div>
+                            <div class="card-description">View your verification locations</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="scanFace()">
+                            <div class="quick-action-icon">📷</div>
+                            <div class="quick-action-label">Scan Face</div>
+                        </div>
+                        <div class="quick-action" onclick="uploadDoc()">
+                            <div class="quick-action-icon">📤</div>
+                            <div class="quick-action-label">Upload Doc</div>
+                        </div>
+                        <div class="quick-action" onclick="showPage('history')">
+                            <div class="quick-action-icon">📊</div>
+                            <div class="quick-action-label">History</div>
+                        </div>
+                        <div class="quick-action" onclick="showSettings()">
+                            <div class="quick-action-icon">⚙️</div>
+                            <div class="quick-action-label">Settings</div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Navigation -->
+                    <div class="bottom-nav">
+                        <div class="nav-item active" onclick="showPage('main')">
+                            <div class="nav-icon">🏠</div>
+                            <div class="nav-label">Home</div>
+                        </div>
+                        <div class="nav-item" onclick="showPage('face-profile')">
+                            <div class="nav-icon">👤</div>
+                            <div class="nav-label">Profile</div>
+                        </div>
+                        <div class="nav-item" onclick="showPage('history')">
+                            <div class="nav-icon">📊</div>
+                            <div class="nav-label">History</div>
+                        </div>
+                        <div class="nav-item" onclick="showSettings()">
+                            <div class="nav-icon">⚙️</div>
+                            <div class="nav-label">Settings</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Face Profile Page -->
+                <div id="face-profile-page" class="detail-page hidden">
+                    <div class="page-header">
+                        <button class="back-btn" onclick="showPage('main')">← Back</button>
+                        <div class="page-title">Face Profile</div>
+                    </div>
+                    <div class="page-content">
+                        <div class="face-profile-card">
+                            <div class="face-avatar-large">
+                                <span>👤</span>
+                                <div class="face-confidence-badge">98%</div>
+                            </div>
+                            <div class="face-info">
+                                <div class="face-name">Rahul Sharma</div>
+                                <div class="face-id">Face ID: FR-001234</div>
+                            </div>
+                            <div class="face-metrics">
+                                <div class="face-metric">
+                                    <div class="face-metric-value">98%</div>
+                                    <div class="face-metric-label">Confidence</div>
+                                </div>
+                                <div class="face-metric">
+                                    <div class="face-metric-value">12</div>
+                                    <div class="face-metric-label">Scans</div>
+                                </div>
+                                <div class="face-metric">
+                                    <div class="face-metric-value">5</div>
+                                    <div class="face-metric-label">Locations</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="scanFace()">Update Face Data</button>
+                    </div>
+                </div>
+
+                <!-- Documents Page -->
+                <div id="documents-page" class="detail-page hidden">
+                    <div class="page-header">
+                        <button class="back-btn" onclick="showPage('main')">← Back</button>
+                        <div class="page-title">My Documents</div>
+                    </div>
+                    <div class="page-content">
+                        <div class="document-item">
+                            <div class="document-icon">🪪</div>
+                            <div class="document-details">
+                                <div class="document-name">Driver's License</div>
+                                <div class="document-info">Expires: 15/08/2026 • Verified</div>
+                            </div>
+                            <div class="document-status verified">✓</div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">🆔</div>
+                            <div class="document-details">
+                                <div class="document-name">Government ID</div>
+                                <div class="document-info">Expires: 22/12/2025 • Verified</div>
+                            </div>
+                            <div class="document-status verified">✓</div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="uploadDoc()">Upload New Document</button>
+                    </div>
+                </div>
+
+                <!-- Verification Status Page -->
+                <div id="verification-page" class="detail-page hidden">
+                    <div class="page-header">
+                        <button class="back-btn" onclick="showPage('main')">← Back</button>
+                        <div class="page-title">Verification Status</div>
+                    </div>
+                    <div class="page-content">
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <div class="status-icon">👤</div>
+                                <div class="status-value">Verified</div>
+                                <div class="status-label">Face Recognition</div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon">📄</div>
+                                <div class="status-value">2/2</div>
+                                <div class="status-label">Documents</div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon">🔒</div>
+                                <div class="status-value">Active</div>
+                                <div class="status-label">Account Status</div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon">⭐</div>
+                                <div class="status-value">5.0</div>
+                                <div class="status-label">Trust Score</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scan History Page -->
+                <div id="history-page" class="detail-page hidden">
+                    <div class="page-header">
+                        <button class="back-btn" onclick="showPage('main')">← Back</button>
+                        <div class="page-title">Scan History</div>
+                    </div>
+                    <div class="page-content">
+                        <div class="location-item">
+                            <div class="location-icon">🏪</div>
+                            <div class="location-details">
+                                <div class="location-name">Hertz Downtown</div>
+                                <div class="location-info">Face scan successful</div>
+                            </div>
+                            <div class="location-time">2 hours ago</div>
+                        </div>
+                        <div class="location-item">
+                            <div class="location-icon">🏢</div>
+                            <div class="location-details">
+                                <div class="location-name">Enterprise Airport</div>
+                                <div class="location-info">Document verification</div>
+                            </div>
+                            <div class="location-time">1 day ago</div>
+                        </div>
+                        <div class="location-item">
+                            <div class="location-icon">🏪</div>
+                            <div class="location-details">
+                                <div class="location-name">Avis City Center</div>
+                                <div class="location-info">Rental verification</div>
+                            </div>
+                            <div class="location-time">3 days ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Face Scan Page -->
+                <div id="face-scan-page" class="detail-page hidden">
+                    <div class="page-header">
+                        <button class="back-btn" onclick="showPage('main')">← Back</button>
+                        <div class="page-title">Face Scan</div>
+                    </div>
+                    <div class="page-content">
+                        <!-- Camera Preview Area -->
+                        <div class="camera-container">
+                            <div class="camera-preview" id="camera-preview">
+                                <div class="camera-placeholder">
+                                    <div class="camera-icon">📷</div>
+                                    <h3>Position Your Face</h3>
+                                    <p>Look directly at the camera and ensure good lighting</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Face Detection Overlay -->
+                            <div class="face-overlay" id="face-overlay">
+                                <div class="face-frame"></div>
+                                <div class="face-instructions">
+                                    <div class="instruction-step" id="step-1">
+                                        <span class="step-icon">👁️</span>
+                                        <span>Look at camera</span>
+                                    </div>
+                                    <div class="instruction-step" id="step-2">
+                                        <span class="step-icon">👀</span>
+                                        <span>Blink naturally</span>
+                                    </div>
+                                    <div class="instruction-step" id="step-3">
+                                        <span class="step-icon">↔️</span>
+                                        <span>Turn head left/right</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="scan-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="scan-progress"></div>
+                            </div>
+                            <div class="progress-text" id="progress-text">Ready to scan...</div>
+                        </div>
+
+                        <!-- Scan Controls -->
+                        <div class="scan-controls">
+                            <button class="btn btn-primary" id="start-scan-btn" onclick="startFaceScan()">
+                                Start Face Scan
+                            </button>
+                            <button class="btn btn-secondary" id="retry-scan-btn" onclick="retryFaceScan()" style="display: none;">
+                                Try Again
+                            </button>
+                        </div>
+
+                        <!-- Scan Results -->
+                        <div class="scan-results" id="scan-results" style="display: none;">
+                            <div class="result-card success">
+                                <div class="result-icon">✅</div>
+                                <div class="result-title">Face Scan Successful!</div>
+                                <div class="result-details">
+                                    <div class="result-metric">
+                                        <span class="metric-label">Confidence:</span>
+                                        <span class="metric-value" id="confidence-score">98%</span>
+                                    </div>
+                                    <div class="result-metric">
+                                        <span class="metric-label">Liveness:</span>
+                                        <span class="metric-value" id="liveness-score">Passed</span>
+                                    </div>
+                                    <div class="result-metric">
+                                        <span class="metric-label">Quality:</span>
+                                        <span class="metric-value" id="quality-score">Excellent</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Upload Page -->
+                <div id="document-upload-page" class="detail-page hidden">
+                    <div class="page-header">
+                        <button class="back-btn" onclick="showPage('main')">← Back</button>
+                        <div class="page-title">Upload Document</div>
+                    </div>
+                    <div class="page-content">
+                        <!-- Document Type Selection -->
+                        <div class="upload-section">
+                            <h3>Select Document Type</h3>
+                            <div class="document-types">
+                                <div class="doc-type-card" onclick="selectDocType('license')">
+                                    <div class="doc-type-icon">🪪</div>
+                                    <div class="doc-type-name">Driver's License</div>
+                                </div>
+                                <div class="doc-type-card" onclick="selectDocType('passport')">
+                                    <div class="doc-type-icon">📘</div>
+                                    <div class="doc-type-name">Passport</div>
+                                </div>
+                                <div class="doc-type-card" onclick="selectDocType('id')">
+                                    <div class="doc-type-icon">🆔</div>
+                                    <div class="doc-type-name">Government ID</div>
+                                </div>
+                                <div class="doc-type-card" onclick="selectDocType('other')">
+                                    <div class="doc-type-icon">📄</div>
+                                    <div class="doc-type-name">Other</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Area -->
+                        <div class="upload-section">
+                            <h3>Upload Document</h3>
+                            <div class="upload-area" id="upload-area" onclick="triggerFileUpload()">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">📤</div>
+                                    <h4>Tap to Upload Document</h4>
+                                    <p>Take a photo or select from gallery</p>
+                                    <div class="upload-hint">
+                                        <span>📷 Camera</span>
+                                        <span>📁 Gallery</span>
+                                    </div>
+                                </div>
+                                <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                            </div>
+                            
+                            <!-- Upload Progress -->
+                            <div class="upload-progress" id="upload-progress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="upload-progress-fill"></div>
+                                </div>
+                                <div class="progress-text" id="upload-progress-text">Uploading...</div>
+                            </div>
+                        </div>
+
+                        <!-- Document Preview -->
+                        <div class="upload-section" id="document-preview-section" style="display: none;">
+                            <h3>Document Preview</h3>
+                            <div class="document-preview">
+                                <img id="preview-image" class="preview-img" alt="Document preview">
+                                <div class="preview-actions">
+                                    <button class="btn btn-secondary" onclick="retakePhoto()">Retake</button>
+                                    <button class="btn btn-primary" onclick="confirmUpload()">Confirm Upload</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Instructions -->
+                        <div class="upload-instructions">
+                            <h4>📋 Upload Guidelines</h4>
+                            <ul>
+                                <li>Ensure document is well-lit and clear</li>
+                                <li>All text should be readable</li>
+                                <li>Document should be flat and not folded</li>
+                                <li>Avoid shadows and glare</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = 
+                now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Show message toast
+        function showMessage(text, type = 'info') {
+            const existing = document.querySelector('.message');
+            if (existing) existing.remove();
+
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+
+            setTimeout(() => message.remove(), 3000);
+        }
+
+        // Page navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.getElementById('main-screen').classList.add('hidden');
+            document.getElementById('face-profile-page').classList.add('hidden');
+            document.getElementById('documents-page').classList.add('hidden');
+            document.getElementById('verification-page').classList.add('hidden');
+            document.getElementById('history-page').classList.add('hidden');
+            document.getElementById('face-scan-page').classList.add('hidden');
+            document.getElementById('document-upload-page').classList.add('hidden');
+
+            // Show requested page
+            if (pageName === 'main') {
+                document.getElementById('main-screen').classList.remove('hidden');
+            } else {
+                document.getElementById(pageName + '-page').classList.remove('hidden');
+            }
+
+            // Update bottom nav active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        // Actions
+        function scanFace() {
+            showPage('face-scan');
+        }
+
+        function uploadDoc() {
+            showPage('document-upload');
+        }
+
+        function showNotifications() {
+            showMessage('Notifications center', 'info');
+        }
+
+        function showSettings() {
+            showMessage('Settings', 'info');
+        }
+
+        // Face Scan Functions
+        let scanInProgress = false;
+        let currentStep = 0;
+
+        function startFaceScan() {
+            if (scanInProgress) return;
+            
+            scanInProgress = true;
+            currentStep = 0;
+            
+            document.getElementById('start-scan-btn').style.display = 'none';
+            document.getElementById('retry-scan-btn').style.display = 'none';
+            document.getElementById('scan-results').style.display = 'none';
+            
+            // Reset progress
+            document.getElementById('scan-progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = 'Starting face scan...';
+            
+            // Start the scan process
+            simulateFaceScan();
+        }
+
+        function simulateFaceScan() {
+            const steps = [
+                { text: 'Looking for face...', progress: 20 },
+                { text: 'Analyzing face features...', progress: 40 },
+                { text: 'Checking liveness...', progress: 60 },
+                { text: 'Verifying identity...', progress: 80 },
+                { text: 'Finalizing scan...', progress: 100 }
+            ];
+
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (stepIndex < steps.length) {
+                    const step = steps[stepIndex];
+                    document.getElementById('progress-text').textContent = step.text;
+                    document.getElementById('scan-progress').style.width = step.progress + '%';
+                    
+                    // Update instruction steps
+                    document.querySelectorAll('.instruction-step').forEach((el, index) => {
+                        el.classList.toggle('active', index === stepIndex);
+                    });
+                    
+                    stepIndex++;
+                } else {
+                    clearInterval(interval);
+                    completeFaceScan();
+                }
+            }, 1000);
+        }
+
+        function completeFaceScan() {
+            scanInProgress = false;
+            
+            // Show results
+            document.getElementById('scan-results').style.display = 'block';
+            document.getElementById('progress-text').textContent = 'Face scan completed successfully!';
+            
+            // Update metrics with random values
+            const confidence = Math.floor(Math.random() * 5) + 95; // 95-99%
+            document.getElementById('confidence-score').textContent = confidence + '%';
+            
+            showMessage('Face scan completed successfully!', 'success');
+        }
+
+        function retryFaceScan() {
+            document.getElementById('start-scan-btn').style.display = 'block';
+            document.getElementById('retry-scan-btn').style.display = 'none';
+            document.getElementById('scan-results').style.display = 'none';
+            document.getElementById('scan-progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = 'Ready to scan...';
+            
+            // Reset instruction steps
+            document.querySelectorAll('.instruction-step').forEach(el => {
+                el.classList.remove('active');
+            });
+        }
+
+        // Document Upload Functions
+        let selectedDocType = null;
+
+        function selectDocType(type) {
+            selectedDocType = type;
+            
+            // Update visual selection
+            document.querySelectorAll('.doc-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.doc-type-card').classList.add('selected');
+            
+            showMessage(`Selected: ${type}`, 'info');
+        }
+
+        function triggerFileUpload() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show upload progress
+            document.getElementById('upload-progress').style.display = 'block';
+            simulateUpload();
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview-image').src = e.target.result;
+                document.getElementById('document-preview-section').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function simulateUpload() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    document.getElementById('upload-progress-text').textContent = 'Upload complete!';
+                } else {
+                    document.getElementById('upload-progress-text').textContent = `Uploading... ${Math.floor(progress)}%`;
+                }
+                document.getElementById('upload-progress-fill').style.width = progress + '%';
+            }, 200);
+        }
+
+        function retakePhoto() {
+            document.getElementById('file-input').value = '';
+            document.getElementById('document-preview-section').style.display = 'none';
+            document.getElementById('upload-progress').style.display = 'none';
+        }
+
+        function confirmUpload() {
+            showMessage('Document uploaded successfully!', 'success');
+            setTimeout(() => {
+                showPage('main');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
