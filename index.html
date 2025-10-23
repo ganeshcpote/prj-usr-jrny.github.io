@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruePass - Document Verification & Face Recognition Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 20px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .platform-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .platform-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .platform-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .platform-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .platform-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .platform-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .platform-features li {
+            padding: 5px 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .platform-features li::before {
+            content: '✓';
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .launch-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Enhanced Role Selection with Journey Mapping */
+        .role-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .role-card.user-journey {
+            border-color: #667eea;
+        }
+
+        .role-card.merchant-journey {
+            border-color: #27ae60;
+        }
+
+        .role-card.admin-journey {
+            border-color: #764ba2;
+        }
+
+        .role-card:hover {
+            border-color: #f39c12;
+        }
+
+        .role-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .role-card.user-journey .role-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .role-card.merchant-journey .role-header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .role-card.admin-journey .role-header {
+            background: linear-gradient(135deg, #764ba2 0%, #9b59b6 100%);
+            color: white;
+        }
+
+        .role-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .role-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .journey-type {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .journey-preview {
+            padding: 25px;
+            background: #f8f9fa;
+        }
+
+        .journey-step {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .journey-step:last-child {
+            border-bottom: none;
+        }
+
+        .journey-step:hover {
+            background: rgba(102, 126, 234, 0.05);
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .journey-step.completed .step-number {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .journey-step.current .step-number {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .journey-step.pending .step-number {
+            background: #e9ecef;
+            color: #6c757d;
+            border: 2px solid #dee2e6;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .step-text {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+
+        .journey-step.completed .step-text {
+            color: #27ae60;
+        }
+
+        .journey-step.current .step-text {
+            color: #f39c12;
+        }
+
+        .journey-step.pending .step-text {
+            color: #6c757d;
+        }
+
+        .role-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: calc(100% - 40px);
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .role-card.user-journey .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .role-card.merchant-journey .btn-primary {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .role-card.admin-journey .btn-primary {
+            background: linear-gradient(135deg, #764ba2 0%, #9b59b6 100%);
+        }
+
+        .architecture-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .architecture-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .architecture-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .architecture-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .architecture-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .architecture-description {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.4;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            margin-top: 40px;
+        }
+
+        .demo-note {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .demo-note h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .demo-note p {
+            color: rgba(255,255,255,0.9);
+            line-height: 1.6;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .tech-tag {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🔐 TruePass</div>
+            <div class="tagline">Document Verification & Face Recognition Platform</div>
+            <div class="description">
+                A comprehensive solution for secure document verification and face recognition, 
+                enabling seamless identity verification for car rentals and other services.
+            </div>
+        </div>
+
+        <div class="demo-note">
+            <h3>🎯 Interactive Demo Platform</h3>
+            <p>
+                This is a comprehensive demonstration of the TruePass platform based on the business requirements. 
+                Each component below represents a fully functional mockup with realistic data and interactions. 
+                Click on any platform component to explore its features and capabilities.
+            </p>
+        </div>
+
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            All Systems Operational
+        </div>
+
+        <!-- Enhanced Role Selection with Journey Mapping -->
+        <div class="role-selection">
+            <div class="role-card user-journey" onclick="selectRole('user')">
+                <div class="role-header">
+                    <div class="role-icon">👤</div>
+                    <h2>User Journey</h2>
+                    <div class="journey-type">Mobile-First Experience</div>
+                </div>
+                <div class="journey-preview">
+                    <div class="journey-step completed">
+                        <span class="step-number">1</span>
+                        <span class="step-text">Registration & Document Upload</span>
+                    </div>
+                    <div class="journey-step completed">
+                        <span class="step-number">2</span>
+                        <span class="step-text">Face Capture & Verification</span>
+                    </div>
+                    <div class="journey-step current">
+                        <span class="step-number">3</span>
+                        <span class="step-text">OTP Verification</span>
+                    </div>
+                    <div class="journey-step pending">
+                        <span class="step-number">4</span>
+                        <span class="step-text">Status Tracking & Alerts</span>
+                    </div>
+                </div>
+                <div class="role-stats">
+                    <div class="stat">
+                        <span class="stat-number">12,847</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">98.2%</span>
+                        <span class="stat-label">Success Rate</span>
+                    </div>
+                </div>
+                <a href="user-mobile-app.html" class="btn btn-primary">Start User Journey</a>
+            </div>
+
+            <div class="role-card merchant-journey" onclick="selectRole('merchant')">
+                <div class="role-header">
+                    <div class="role-icon">🏪</div>
+                    <h2>Merchant Journey</h2>
+                    <div class="journey-type">Kiosk-Optimized Experience</div>
+                </div>
+                <div class="journey-preview">
+                    <div class="journey-step completed">
+                        <span class="step-number">1</span>
+                        <span class="step-text">Customer Face Scan</span>
+                    </div>
+                    <div class="journey-step completed">
+                        <span class="step-number">2</span>
+                        <span class="step-text">Instant Verification</span>
+                    </div>
+                    <div class="journey-step current">
+                        <span class="step-number">3</span>
+                        <span class="step-text">Document Status Check</span>
+                    </div>
+                    <div class="journey-step pending">
+                        <span class="step-number">4</span>
+                        <span class="step-text">Rental Processing</span>
+                    </div>
+                </div>
+                <div class="role-stats">
+                    <div class="stat">
+                        <span class="stat-number">1,247</span>
+                        <span class="stat-label">Active Merchants</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">₹1,24,700</span>
+                        <span class="stat-label">Monthly Revenue</span>
+                    </div>
+                </div>
+                <a href="merchant-kiosk-app.html" class="btn btn-primary">Start Merchant Journey</a>
+            </div>
+
+            <div class="role-card admin-journey" onclick="selectRole('admin')">
+                <div class="role-header">
+                    <div class="role-icon">🏛️</div>
+                    <h2>Admin Journey</h2>
+                    <div class="journey-type">Comprehensive Management</div>
+                </div>
+                <div class="journey-preview">
+                    <div class="journey-step completed">
+                        <span class="step-number">1</span>
+                        <span class="step-text">System Overview</span>
+                    </div>
+                    <div class="journey-step completed">
+                        <span class="step-number">2</span>
+                        <span class="step-text">User Management</span>
+                    </div>
+                    <div class="journey-step current">
+                        <span class="step-number">3</span>
+                        <span class="step-text">Merchant Management</span>
+                    </div>
+                    <div class="journey-step pending">
+                        <span class="step-number">4</span>
+                        <span class="step-text">Analytics & Reports</span>
+                    </div>
+                </div>
+                <div class="role-stats">
+                    <div class="stat">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Services Managed</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">99.8%</span>
+                        <span class="stat-label">System Uptime</span>
+                    </div>
+                </div>
+                <a href="central-administrator-panel.html" class="btn btn-primary">Start Admin Journey</a>
+            </div>
+        </div>
+
+        <div class="architecture-section">
+            <div class="section-title">🏗️ Three-Tier Architecture</div>
+            <div class="architecture-grid">
+                <div class="architecture-item">
+                    <div class="architecture-icon">📱</div>
+                    <div class="architecture-name">User Mobile App</div>
+                    <div class="architecture-description">
+                        End-user application for registration, document upload, and verification
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">🏪</div>
+                    <div class="architecture-name">Merchant Kiosk App</div>
+                    <div class="architecture-description">
+                        Point-of-sale application for instant customer verification
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">🏛️</div>
+                    <div class="architecture-name">Central Admin Panel</div>
+                    <div class="architecture-description">
+                        Unified administrative interface for system management
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">🔗</div>
+                    <div class="architecture-name">External Services</div>
+                    <div class="architecture-description">
+                        Document verification providers, OTP services, and cloud storage
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">🗄️</div>
+                    <div class="architecture-name">Database Layer</div>
+                    <div class="architecture-description">
+                        PostgreSQL, Redis Cache, and AWS OpenSearch for data storage
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">🔒</div>
+                    <div class="architecture-name">Security</div>
+                    <div class="architecture-description">
+                        TLS 1.3, AES-256 encryption, RBAC, and GDPR compliance
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="architecture-section">
+            <div class="section-title">💡 Key Features</div>
+            <div class="architecture-grid">
+                <div class="architecture-item">
+                    <div class="architecture-icon">🆔</div>
+                    <div class="architecture-name">Document Verification</div>
+                    <div class="architecture-description">
+                        Integration with Persona, Veriff, and iDenfy for document validation
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">👁️</div>
+                    <div class="architecture-name">Face Recognition</div>
+                    <div class="architecture-description">
+                        Advanced 1:N face matching with liveness detection
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">📱</div>
+                    <div class="architecture-name">Multi-Channel Notifications</div>
+                    <div class="architecture-description">
+                        Push notifications, SMS, and email alerts
+                    </div>
+                </div>
+                <div class="architecture-item">
+                    <div class="architecture-icon">💰</div>
+                    <div class="architecture-name">Commission-Based Pricing</div>
+                    <div class="architecture-description">
+                        Revenue model based on successful verifications
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <div class="tech-tag">React Native</div>
+            <div class="tech-tag">Node.js</div>
+            <div class="tech-tag">PostgreSQL</div>
+            <div class="tech-tag">Redis</div>
+            <div class="tech-tag">AWS OpenSearch</div>
+            <div class="tech-tag">AWS S3</div>
+            <div class="tech-tag">Firebase</div>
+            <div class="tech-tag">Twilio</div>
+            <div class="tech-tag">JWT</div>
+            <div class="tech-tag">TLS 1.3</div>
+        </div>
+
+        <div class="footer">
+            <p>TruePass Platform Demo - Document Verification & Face Recognition System</p>
+            <p>Built following the business requirements specification</p>
+        </div>
+    </div>
+
+    <script>
+        function openApp(url) {
+            window.open(url, '_blank');
+        }
+
+        function selectRole(role) {
+            // Add visual feedback for role selection
+            const roleCards = document.querySelectorAll('.role-card');
+            roleCards.forEach(card => card.classList.remove('selected'));
+            
+            const selectedCard = document.querySelector(`.${role}-journey`);
+            selectedCard.classList.add('selected');
+            
+            // Add selection animation
+            selectedCard.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                selectedCard.style.transform = '';
+            }, 200);
+            
+            // Show role-specific information
+            showRoleInfo(role);
+        }
+
+        function showRoleInfo(role) {
+            const info = {
+                user: {
+                    title: 'User Journey Selected',
+                    description: 'You will experience the mobile-first user journey with step-by-step guidance.',
+                    nextSteps: ['Registration', 'Document Upload', 'Face Capture', 'Verification']
+                },
+                merchant: {
+                    title: 'Merchant Journey Selected', 
+                    description: 'You will experience the kiosk-optimized merchant workflow for customer verification.',
+                    nextSteps: ['Face Scan', 'Instant Verification', 'Document Check', 'Rental Processing']
+                },
+                admin: {
+                    title: 'Admin Journey Selected',
+                    description: 'You will access the comprehensive administrative dashboard for system management.',
+                    nextSteps: ['System Overview', 'User Management', 'Merchant Management', 'Analytics']
+                }
+            };
+            
+            const roleInfo = info[role];
+            console.log(`${roleInfo.title}: ${roleInfo.description}`);
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.platform-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add click animation
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'translateY(-2px) scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px) scale(1.02)';
+                    }, 150);
+                });
+            });
+        });
+
+        // Simulate real-time status updates
+        setInterval(() => {
+            const statusDot = document.querySelector('.status-dot');
+            if (statusDot) {
+                statusDot.style.animation = 'none';
+                setTimeout(() => {
+                    statusDot.style.animation = 'pulse 2s infinite';
+                }, 10);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
