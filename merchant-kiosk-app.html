@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruePass - Merchant Kiosk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .kiosk-container {
+            width: 1024px;
+            height: 768px;
+            background: #000;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .kiosk-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .merchant-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 50%;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            width: 50%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .welcome-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .welcome-subtitle {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .start-verification-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .start-verification-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .start-verification-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Face Scan Interface */
+        .face-scan-interface {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .scan-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .scan-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .scan-subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .camera-container {
+            flex: 1;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #333, #555);
+            position: relative;
+        }
+
+        .camera-placeholder {
+            text-align: center;
+            color: white;
+        }
+
+        .camera-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .camera-placeholder h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .camera-placeholder p {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        .face-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .face-frame {
+            width: 300px;
+            height: 300px;
+            border: 4px solid #4CAF50;
+            border-radius: 50%;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        .face-instructions {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .instruction-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 14px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .instruction-step.active {
+            opacity: 1;
+        }
+
+        .step-icon {
+            font-size: 24px;
+        }
+
+        .scan-progress {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .scan-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .verification-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .status-icon {
+            font-size: 24px;
+        }
+
+        .status-success {
+            color: #4CAF50;
+        }
+
+        .status-pending {
+            color: #FF9800;
+        }
+
+        .status-failed {
+            color: #f44336;
+        }
+
+        .customer-info {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .customer-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .customer-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .customer-details h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .customer-details p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .verification-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+        }
+
+        /* Transaction Processing */
+        .transaction-processing {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .processing-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .processing-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .processing-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .processing-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .processing-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .processing-step.active {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .processing-step.completed {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .step-icon {
+            font-size: 20px;
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        .success-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .success-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .transaction-details {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .transaction-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .transaction-label {
+            color: #666;
+        }
+
+        .transaction-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .next-customer-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .next-customer-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Error Screen */
+        .error-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            color: #f44336;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #f44336;
+            margin-bottom: 15px;
+        }
+
+        .error-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Analytics Panel */
+        .analytics-panel {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            overflow-y: auto;
+        }
+
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .analytics-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analytics-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .analytics-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .analytics-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .recent-transactions {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .transactions-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transaction-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .transaction-details {
+            font-size: 14px;
+        }
+
+        .transaction-customer {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .transaction-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        /* Message Toast */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #4CAF50;
+        }
+
+        .message.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        .left-panel::-webkit-scrollbar,
+        .right-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .left-panel::-webkit-scrollbar-track,
+        .right-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .left-panel::-webkit-scrollbar-thumb,
+        .right-panel::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .left-panel::-webkit-scrollbar-thumb:hover,
+        .right-panel::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Firefox scrollbar */
+        .left-panel,
+        .right-panel {
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <div class="kiosk-screen">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="logo">🏪 TruePass Kiosk</div>
+                    <div class="merchant-info">Hertz Downtown • Terminal 1</div>
+                </div>
+                <div class="header-right">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>System Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Left Panel - Face Scan Interface -->
+                <div class="left-panel">
+                    <!-- Welcome Screen -->
+                    <div id="welcome-screen" class="welcome-screen">
+                        <div class="welcome-icon">👋</div>
+                        <div class="welcome-title">Welcome to TruePass</div>
+                        <div class="welcome-subtitle">Please scan your face to begin verification</div>
+                        <button class="start-verification-btn" onclick="startVerification()">
+                            Start Face Scan
+                        </button>
+                    </div>
+
+                    <!-- Face Scan Interface -->
+                    <div id="face-scan-interface" class="face-scan-interface hidden">
+                        <div class="scan-header">
+                            <div class="scan-title">Face Verification</div>
+                            <div class="scan-subtitle">Look directly at the camera and follow the instructions</div>
+                        </div>
+
+                        <div class="camera-container">
+                            <div class="camera-preview" id="camera-preview">
+                                <div class="camera-placeholder">
+                                    <div class="camera-icon">📷</div>
+                                    <h3>Position Your Face</h3>
+                                    <p>Look directly at the camera and ensure good lighting</p>
+                                </div>
+                            </div>
+                            
+                            <div class="face-overlay" id="face-overlay">
+                                <div class="face-frame"></div>
+                                <div class="face-instructions">
+                                    <div class="instruction-step" id="step-1">
+                                        <span class="step-icon">👁️</span>
+                                        <span>Look at camera</span>
+                                    </div>
+                                    <div class="instruction-step" id="step-2">
+                                        <span class="step-icon">👀</span>
+                                        <span>Blink naturally</span>
+                                    </div>
+                                    <div class="instruction-step" id="step-3">
+                                        <span class="step-icon">↔️</span>
+                                        <span>Turn head left/right</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="scan-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="scan-progress"></div>
+                            </div>
+                            <div class="progress-text" id="progress-text">Ready to scan...</div>
+                        </div>
+
+                        <div class="scan-controls">
+                            <button class="btn btn-primary" id="start-scan-btn" onclick="startFaceScan()">
+                                Start Scan
+                            </button>
+                            <button class="btn btn-secondary" id="retry-scan-btn" onclick="retryFaceScan()" style="display: none;">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Results & Analytics -->
+                <div class="right-panel">
+                    <!-- Results Panel -->
+                    <div id="results-panel" class="results-panel hidden">
+                        <div class="results-header">
+                            <div class="results-title">Verification Results</div>
+                            <div class="verification-status" id="verification-status">
+                                <span class="status-icon">⏳</span>
+                                <span class="status-pending">Processing...</span>
+                            </div>
+                        </div>
+
+                        <div class="customer-info" id="customer-info">
+                            <div class="customer-header">
+                                <div class="customer-avatar">👤</div>
+                                <div class="customer-details">
+                                    <h3 id="customer-name">Loading...</h3>
+                                    <p id="customer-id">Verifying identity...</p>
+                                </div>
+                            </div>
+
+                            <div class="verification-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="confidence-score">--</div>
+                                    <div class="metric-label">Confidence</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value" id="liveness-score">--</div>
+                                    <div class="metric-label">Liveness</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value" id="document-status">--</div>
+                                    <div class="metric-label">Documents</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value" id="trust-score">--</div>
+                                    <div class="metric-label">Trust Score</div>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" id="approve-btn" onclick="approveRental()" style="display: none;">
+                                    ✓ Approve Rental
+                                </button>
+                                <button class="btn btn-danger" id="reject-btn" onclick="rejectRental()" style="display: none;">
+                                    ✗ Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Processing -->
+                    <div id="transaction-processing" class="transaction-processing hidden">
+                        <div class="processing-icon">⚙️</div>
+                        <div class="processing-title">Processing Transaction</div>
+                        <div class="processing-subtitle">Please wait while we process your rental request</div>
+                        
+                        <div class="processing-steps">
+                            <div class="processing-step" id="step-verify">
+                                <span class="step-icon">🔍</span>
+                                <span class="step-text">Verifying identity</span>
+                            </div>
+                            <div class="processing-step" id="step-documents">
+                                <span class="step-icon">📄</span>
+                                <span class="step-text">Checking documents</span>
+                            </div>
+                            <div class="processing-step" id="step-payment">
+                                <span class="step-icon">💳</span>
+                                <span class="step-text">Processing payment</span>
+                            </div>
+                            <div class="processing-step" id="step-complete">
+                                <span class="step-icon">✅</span>
+                                <span class="step-text">Completing rental</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success Screen -->
+                    <div id="success-screen" class="success-screen hidden">
+                        <div class="success-icon">🎉</div>
+                        <div class="success-title">Rental Approved!</div>
+                        <div class="success-subtitle">Your rental has been successfully processed</div>
+                        
+                        <div class="transaction-details">
+                            <div class="transaction-row">
+                                <span class="transaction-label">Customer:</span>
+                                <span class="transaction-value" id="success-customer">John Doe</span>
+                            </div>
+                            <div class="transaction-row">
+                                <span class="transaction-label">Vehicle:</span>
+                                <span class="transaction-value" id="success-vehicle">Toyota Camry</span>
+                            </div>
+                            <div class="transaction-row">
+                                <span class="transaction-label">Duration:</span>
+                                <span class="transaction-value" id="success-duration">3 days</span>
+                            </div>
+                            <div class="transaction-row">
+                                <span class="transaction-label">Total Amount:</span>
+                                <span class="transaction-value" id="success-amount">$150.00</span>
+                            </div>
+                        </div>
+
+                        <button class="next-customer-btn" onclick="nextCustomer()">
+                            Next Customer
+                        </button>
+                    </div>
+
+                    <!-- Error Screen -->
+                    <div id="error-screen" class="error-screen hidden">
+                        <div class="error-icon">❌</div>
+                        <div class="error-title">Verification Failed</div>
+                        <div class="error-subtitle">Unable to verify identity. Please try again or contact support.</div>
+                        
+                        <div class="error-actions">
+                            <button class="btn btn-primary" onclick="retryVerification()">
+                                Try Again
+                            </button>
+                            <button class="btn btn-secondary" onclick="contactSupport()">
+                                Contact Support
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Panel -->
+                    <div id="analytics-panel" class="analytics-panel">
+                        <div class="analytics-header">
+                            <div class="analytics-title">Today's Performance</div>
+                        </div>
+
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <div class="analytics-value" id="total-scans">0</div>
+                                <div class="analytics-label">Total Scans</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-value" id="success-rate">0%</div>
+                                <div class="analytics-label">Success Rate</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-value" id="total-revenue">$0</div>
+                                <div class="analytics-label">Revenue</div>
+                            </div>
+                            <div class="analytics-card">
+                                <div class="analytics-value" id="avg-time">0s</div>
+                                <div class="analytics-label">Avg Time</div>
+                            </div>
+                        </div>
+
+                        <div class="recent-transactions">
+                            <div class="transactions-title">Recent Transactions</div>
+                            <div id="recent-transactions-list">
+                                <div class="transaction-item">
+                                    <div class="transaction-info">
+                                        <div class="transaction-avatar">👤</div>
+                                        <div class="transaction-details">
+                                            <div class="transaction-customer">No recent transactions</div>
+                                            <div class="transaction-time">Start scanning to see results</div>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-amount">--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentState = 'welcome';
+        let scanInProgress = false;
+        let currentStep = 0;
+        let totalScans = 0;
+        let successfulScans = 0;
+        let totalRevenue = 0;
+
+        // Show message toast
+        function showMessage(text, type = 'info') {
+            const existing = document.querySelector('.message');
+            if (existing) existing.remove();
+
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+
+            setTimeout(() => message.remove(), 3000);
+        }
+
+        // Start verification process
+        function startVerification() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('face-scan-interface').classList.remove('hidden');
+            document.getElementById('results-panel').classList.remove('hidden');
+            currentState = 'scanning';
+        }
+
+        // Face scan functions
+        function startFaceScan() {
+            if (scanInProgress) return;
+            
+            scanInProgress = true;
+            currentStep = 0;
+            
+            document.getElementById('start-scan-btn').style.display = 'none';
+            document.getElementById('retry-scan-btn').style.display = 'none';
+            
+            // Reset progress
+            document.getElementById('scan-progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = 'Starting face scan...';
+            
+            // Start the scan process
+            simulateFaceScan();
+        }
+
+        function simulateFaceScan() {
+            const steps = [
+                { text: 'Looking for face...', progress: 20 },
+                { text: 'Analyzing face features...', progress: 40 },
+                { text: 'Checking liveness...', progress: 60 },
+                { text: 'Verifying identity...', progress: 80 },
+                { text: 'Finalizing scan...', progress: 100 }
+            ];
+
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (stepIndex < steps.length) {
+                    const step = steps[stepIndex];
+                    document.getElementById('progress-text').textContent = step.text;
+                    document.getElementById('scan-progress').style.width = step.progress + '%';
+                    
+                    // Update instruction steps
+                    document.querySelectorAll('.instruction-step').forEach((el, index) => {
+                        el.classList.toggle('active', index === stepIndex);
+                    });
+                    
+                    stepIndex++;
+                } else {
+                    clearInterval(interval);
+                    completeFaceScan();
+                }
+            }, 1000);
+        }
+
+        function completeFaceScan() {
+            scanInProgress = false;
+            totalScans++;
+            
+            // Simulate verification results
+            const isSuccessful = Math.random() > 0.2; // 80% success rate
+            
+            if (isSuccessful) {
+                successfulScans++;
+                showVerificationResults();
+            } else {
+                showVerificationError();
+            }
+            
+            updateAnalytics();
+        }
+
+        function showVerificationResults() {
+            // Update status
+            document.getElementById('verification-status').innerHTML = `
+                <span class="status-icon">✅</span>
+                <span class="status-success">Verified Successfully</span>
+            `;
+
+            // Update customer info
+            const customers = [
+                { name: 'John Doe', id: 'ID-001234' },
+                { name: 'Jane Smith', id: 'ID-001235' },
+                { name: 'Mike Johnson', id: 'ID-001236' },
+                { name: 'Sarah Wilson', id: 'ID-001237' }
+            ];
+            
+            const customer = customers[Math.floor(Math.random() * customers.length)];
+            document.getElementById('customer-name').textContent = customer.name;
+            document.getElementById('customer-id').textContent = `ID: ${customer.id}`;
+
+            // Update metrics
+            const confidence = Math.floor(Math.random() * 5) + 95; // 95-99%
+            document.getElementById('confidence-score').textContent = confidence + '%';
+            document.getElementById('liveness-score').textContent = 'Passed';
+            document.getElementById('document-status').textContent = '2/2';
+            document.getElementById('trust-score').textContent = '5.0';
+
+            // Show action buttons
+            document.getElementById('approve-btn').style.display = 'block';
+            document.getElementById('reject-btn').style.display = 'block';
+
+            showMessage('Face verification successful!', 'success');
+        }
+
+        function showVerificationError() {
+            document.getElementById('verification-status').innerHTML = `
+                <span class="status-icon">❌</span>
+                <span class="status-failed">Verification Failed</span>
+            `;
+
+            document.getElementById('customer-name').textContent = 'Verification Failed';
+            document.getElementById('customer-id').textContent = 'Unable to verify identity';
+
+            document.getElementById('confidence-score').textContent = '45%';
+            document.getElementById('liveness-score').textContent = 'Failed';
+            document.getElementById('document-status').textContent = '0/2';
+            document.getElementById('trust-score').textContent = '1.2';
+
+            document.getElementById('retry-scan-btn').style.display = 'block';
+
+            showMessage('Face verification failed. Please try again.', 'error');
+        }
+
+        function retryFaceScan() {
+            document.getElementById('start-scan-btn').style.display = 'block';
+            document.getElementById('retry-scan-btn').style.display = 'none';
+            document.getElementById('scan-progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = 'Ready to scan...';
+            
+            // Reset instruction steps
+            document.querySelectorAll('.instruction-step').forEach(el => {
+                el.classList.remove('active');
+            });
+        }
+
+        // Transaction processing
+        function approveRental() {
+            document.getElementById('results-panel').classList.add('hidden');
+            document.getElementById('transaction-processing').classList.remove('hidden');
+            
+            processTransaction();
+        }
+
+        function rejectRental() {
+            showMessage('Rental rejected', 'error');
+            setTimeout(() => {
+                nextCustomer();
+            }, 2000);
+        }
+
+        function processTransaction() {
+            const steps = ['step-verify', 'step-documents', 'step-payment', 'step-complete'];
+            let currentStepIndex = 0;
+
+            const interval = setInterval(() => {
+                if (currentStepIndex < steps.length) {
+                    // Mark current step as active
+                    document.getElementById(steps[currentStepIndex]).classList.add('active');
+                    
+                    // Mark previous steps as completed
+                    for (let i = 0; i < currentStepIndex; i++) {
+                        document.getElementById(steps[i]).classList.remove('active');
+                        document.getElementById(steps[i]).classList.add('completed');
+                    }
+                    
+                    currentStepIndex++;
+                } else {
+                    clearInterval(interval);
+                    showSuccessScreen();
+                }
+            }, 1500);
+        }
+
+        function showSuccessScreen() {
+            document.getElementById('transaction-processing').classList.add('hidden');
+            document.getElementById('success-screen').classList.remove('hidden');
+            
+            // Update success details
+            const vehicles = ['Toyota Camry', 'Honda Civic', 'Ford Focus', 'Nissan Altima'];
+            const durations = ['1 day', '2 days', '3 days', '1 week'];
+            const amounts = ['$50.00', '$100.00', '$150.00', '$200.00'];
+            
+            document.getElementById('success-customer').textContent = document.getElementById('customer-name').textContent;
+            document.getElementById('success-vehicle').textContent = vehicles[Math.floor(Math.random() * vehicles.length)];
+            document.getElementById('success-duration').textContent = durations[Math.floor(Math.random() * durations.length)];
+            document.getElementById('success-amount').textContent = amounts[Math.floor(Math.random() * amounts.length)];
+            
+            // Update revenue
+            const amount = parseFloat(document.getElementById('success-amount').textContent.replace('$', ''));
+            totalRevenue += amount;
+            
+            showMessage('Rental approved successfully!', 'success');
+        }
+
+        function nextCustomer() {
+            // Reset all screens
+            document.getElementById('welcome-screen').classList.remove('hidden');
+            document.getElementById('face-scan-interface').classList.add('hidden');
+            document.getElementById('results-panel').classList.add('hidden');
+            document.getElementById('transaction-processing').classList.add('hidden');
+            document.getElementById('success-screen').classList.add('hidden');
+            document.getElementById('error-screen').classList.add('hidden');
+            
+            // Reset scan interface
+            document.getElementById('start-scan-btn').style.display = 'block';
+            document.getElementById('retry-scan-btn').style.display = 'none';
+            document.getElementById('scan-progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = 'Ready to scan...';
+            
+            // Reset instruction steps
+            document.querySelectorAll('.instruction-step').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Reset processing steps
+            document.querySelectorAll('.processing-step').forEach(el => {
+                el.classList.remove('active', 'completed');
+            });
+            
+            currentState = 'welcome';
+            scanInProgress = false;
+        }
+
+        function retryVerification() {
+            nextCustomer();
+        }
+
+        function contactSupport() {
+            showMessage('Support contacted', 'info');
+        }
+
+        // Analytics
+        function updateAnalytics() {
+            document.getElementById('total-scans').textContent = totalScans;
+            document.getElementById('success-rate').textContent = Math.round((successfulScans / totalScans) * 100) + '%';
+            document.getElementById('total-revenue').textContent = '$' + totalRevenue.toFixed(2);
+            document.getElementById('avg-time').textContent = Math.floor(Math.random() * 30) + 15 + 's';
+            
+            // Update recent transactions
+            if (successfulScans > 0) {
+                const transactionsList = document.getElementById('recent-transactions-list');
+                const customerName = document.getElementById('customer-name').textContent;
+                const amount = document.getElementById('success-amount') ? document.getElementById('success-amount').textContent : '$150.00';
+                
+                const transactionItem = document.createElement('div');
+                transactionItem.className = 'transaction-item';
+                transactionItem.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-avatar">👤</div>
+                        <div class="transaction-details">
+                            <div class="transaction-customer">${customerName}</div>
+                            <div class="transaction-time">Just now</div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount">${amount}</div>
+                `;
+                
+                transactionsList.insertBefore(transactionItem, transactionsList.firstChild);
+                
+                // Keep only last 5 transactions
+                const items = transactionsList.querySelectorAll('.transaction-item');
+                if (items.length > 5) {
+                    items[items.length - 1].remove();
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAnalytics();
+        });
+    </script>
+</body>
+</html>
